@@ -1,0 +1,12 @@
+version: '3'
+
+vars:
+  VPN_LOCALHOST_FILE: ansible/local-vpn-endpoint.yml
+
+tasks:
+  install-local-vpn:
+    desc: Provision the local machine as a VPN endpoint, the same way as a remote EC2 instance would be set up
+    cmds:
+      - ansible-playbook --connection=local --inventory 127.0.0.1, --limit 127.0.0.1 
+        --extra-vars "@{{.VPN_LOCALHOST_FILE}}" 
+        ./ansible/strongswan-install.yml

@@ -1,0 +1,22 @@
+- name: Install strongSwan
+  ansible.builtin.package:
+    name:
+      - strongswan
+    state: latest
+
+- name: Configure strongSwan (from a template)
+  ansible.builtin.template:
+    src: files/etc/ipsec.conf.j2
+    dest: /etc/ipsec.conf
+    owner: root
+    group: root
+
+- name: Configure strongSwan secrets (from a template)
+  ansible.builtin.template:
+    src: files/etc/ipsec.secrets.j2
+    dest: /etc/ipsec.secrets
+    owner: root
+    group: root
+
+- name: Restart ipsec
+  command: ipsec restart

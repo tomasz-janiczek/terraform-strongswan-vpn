@@ -1,0 +1,12 @@
+---
+# This controls whever the playbook will treat the setup as a "local installation" or not
+local_setup: true
+host: "127.0.0.1" # leave it be
+
+# The variables
+client_ip: <REPLACE_ME> # eg "52.210.166.63"
+client_cidr: <REPLACE_ME> # eg "10.99.0.0/16"
+local_cidr: <REPLACE_ME> # eg "192.168.0.0/16"
+local_private_ip: <REPLACE_ME> # eg "192.168.1.101"
+local_public_ip: <REPLACE_ME> # eg "213.5.4.21"
+tunnel_psk: <REPLACE_ME> # eg "5Nqgw.QbRJ07_complicated_key"

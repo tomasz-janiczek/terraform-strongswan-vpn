@@ -1,0 +1,38 @@
+---
+# A "header" section needed by the terraform-null-ansible module
+- hosts: localhost
+  gather_facts: True
+  check_mode: no
+  tasks:
+  - name: Add public ip addresses to an dynamic inventory
+    add_host:
+      name: "{{ host }}"
+      groups: all
+    when: (local_setup is not defined) or (local_setup == false) # We do NOT need this for a local setup
+
+  - local_action: wait_for port=22 host="{{ host }}" search_regex=OpenSSH delay=10
+    when: (local_setup is not defined) or (local_setup == false) # We do NOT need this for a local setup
+
+- hosts: all
+  gather_facts: False
+  check_mode: no
+  become: True
+  tasks:
+  - name: Install python 2.7
+    raw: >
+      test -e /usr/bin/python ||
+      (
+        (test -e /usr/bin/apt-get && (apt-get -y update && apt-get install -y python)) ||
+        (test -e /usr/bin/yum && (yum makecache fast && yum install -y python))
+      )
+    args:
+      creates: /usr/bin/python
+
+# This is the real thing
+
+- hosts: all
+  gather_facts: false
+  become: true
+  roles:
+    - gateway
+    - strongswan
