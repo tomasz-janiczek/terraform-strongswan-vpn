@@ -20,36 +20,6 @@ data "aws_vpc" "selected" {
   id = var.vpc_id
 }
 
-# TODO: change this to something more secure!
-# It is wide open now for testing purposes
-resource "aws_security_group" "allow_vpn" {
-  name        = "allow_all"
-  description = "Allows all incoming and outgoing traffic (INSECURE)"
-  vpc_id      = var.vpc_id
-
-  ingress {
-    description      = "Allow all incomming traffic"
-    from_port        = 0
-    to_port          = 0
-    protocol         = "-1"
-    cidr_blocks      = ["0.0.0.0/0"]
-    ipv6_cidr_blocks = ["::/0"]
-  }
-
-  egress {
-    description      = "Allow all outgoing traffic"
-    from_port        = 0
-    to_port          = 0
-    protocol         = "-1"
-    cidr_blocks      = ["0.0.0.0/0"]
-    ipv6_cidr_blocks = ["::/0"]
-  }
-
-  tags = {
-    Name = "allow_all"
-  }
-}
-
 data "aws_key_pair" "vpn" {
   key_name = var.key_pair
 }
@@ -74,7 +44,7 @@ resource "aws_instance" "vpn_server" {
   # This needs to be off or the instance won't work as a router
   source_dest_check = false
 
-  vpc_security_group_ids = [aws_security_group.allow_vpn.id]
+  vpc_security_group_ids = [var.sg_id]
 
   tags = {
     Name = var.name

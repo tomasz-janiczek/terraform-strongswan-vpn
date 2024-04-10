@@ -45,6 +45,11 @@ variable "username" {
   description = "The user to use when connecting to the EC2 instance (Ansible provisioning)"
 }
 
+variable "sg_id" {
+  type        = string
+  description = "The ID of the sg applied to the instance"
+}
+
 # VPN endpoint(s) configuration
 variable "client_ip" {
   type        = string
