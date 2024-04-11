@@ -66,12 +66,16 @@ resource "aws_instance" "vpn_server" {
 # https://wiki.strongswan.org/projects/strongswan/wiki/connsection
 # https://www.cisco.com/c/en/us/support/docs/ip/internet-key-exchange-ike/117258-config-l2l.html
 #
+
+locals {
+  host_ip = var.ssh_public == true ? aws_instance.vpn_server.public_ip : aws_instance.vpn_server.private_ip
+}
 module "ansible_provisioner" {
   source = "github.com/cloudposse/tf_ansible"
 
   arguments = ["--ssh-common-args='-o StrictHostKeyChecking=no' --user=${var.username} --private-key ${var.private_key}"]
   envs = [
-    "host=${aws_instance.vpn_server.public_ip}",
+    "host=${local.host_ip}",
     "module_path=${path.module}",
     "client_ip=${var.client_ip}",
     "client_cidr=${var.client_cidr}",
