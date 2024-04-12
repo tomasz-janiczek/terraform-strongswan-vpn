@@ -20,36 +20,6 @@ data "aws_vpc" "selected" {
   id = var.vpc_id
 }
 
-# TODO: change this to something more secure!
-# It is wide open now for testing purposes
-resource "aws_security_group" "allow_vpn" {
-  name        = "allow_all"
-  description = "Allows all incoming and outgoing traffic (INSECURE)"
-  vpc_id      = var.vpc_id
-
-  ingress {
-    description      = "Allow all incomming traffic"
-    from_port        = 0
-    to_port          = 0
-    protocol         = "-1"
-    cidr_blocks      = ["0.0.0.0/0"]
-    ipv6_cidr_blocks = ["::/0"]
-  }
-
-  egress {
-    description      = "Allow all outgoing traffic"
-    from_port        = 0
-    to_port          = 0
-    protocol         = "-1"
-    cidr_blocks      = ["0.0.0.0/0"]
-    ipv6_cidr_blocks = ["::/0"]
-  }
-
-  tags = {
-    Name = "allow_all"
-  }
-}
-
 data "aws_key_pair" "vpn" {
   key_name = var.key_pair
 }
@@ -74,7 +44,7 @@ resource "aws_instance" "vpn_server" {
   # This needs to be off or the instance won't work as a router
   source_dest_check = false
 
-  vpc_security_group_ids = [aws_security_group.allow_vpn.id]
+  vpc_security_group_ids = [var.sg_id]
 
   tags = {
     Name = var.name
@@ -96,12 +66,16 @@ resource "aws_instance" "vpn_server" {
 # https://wiki.strongswan.org/projects/strongswan/wiki/connsection
 # https://www.cisco.com/c/en/us/support/docs/ip/internet-key-exchange-ike/117258-config-l2l.html
 #
+
+locals {
+  host_ip = var.ssh_public == true ? aws_instance.vpn_server.public_ip : aws_instance.vpn_server.private_ip
+}
 module "ansible_provisioner" {
   source = "github.com/cloudposse/tf_ansible"
 
   arguments = ["--ssh-common-args='-o StrictHostKeyChecking=no' --user=${var.username} --private-key ${var.private_key}"]
   envs = [
-    "host=${aws_instance.vpn_server.public_ip}",
+    "host=${local.host_ip}",
     "module_path=${path.module}",
     "client_ip=${var.client_ip}",
     "client_cidr=${var.client_cidr}",

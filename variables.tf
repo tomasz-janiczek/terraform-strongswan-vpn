@@ -28,6 +28,12 @@ variable "subnet_id" {
   description = "The ID of the subnet where the instance will be located"
 }
 
+variable "ssh_public" {
+  type        = bool
+  description = "Use the public IP to SSH - if not the private - default is false"
+  default     = false
+}
+
 # Security
 variable "key_pair" {
   type        = string
@@ -43,6 +49,11 @@ variable "username" {
   type        = string
   default     = "ubuntu"
   description = "The user to use when connecting to the EC2 instance (Ansible provisioning)"
+}
+
+variable "sg_id" {
+  type        = string
+  description = "The ID of the sg applied to the instance"
 }
 
 # VPN endpoint(s) configuration
